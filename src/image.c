@@ -128,6 +128,7 @@ image get_label_v3(image **characters, char *string, int size)
     image label = make_empty_image(0, 0, 0);
     while (*string) {
         image l = characters[size][(int)*string];
+        //printf("flag2.6.2.1: %d, %c, %d, %d, l: %d, label: %d\n", size, *string, strlen(string), l, label);
         image n = tile_images(label, l, -size - 1 + (size + 1) / 2);
         free_image(label);
         label = n;
@@ -425,6 +426,7 @@ void draw_detections_v3(image im, detection *dets, int num, float thresh, char *
             //save_image(cropped_im, image_name);
             //free_image(cropped_im);
 
+
             if (im.c == 1) {
                 draw_box_width_bw(im, left, top, right, bot, width, 0.8);    // 1 channel Black-White
             }
@@ -441,11 +443,14 @@ void draw_detections_v3(image im, detection *dets, int num, float thresh, char *
                         strcat(labelstr, names[j]);
                     }
                 }
+                printf("flag2.6: %s\n", labelstr);
+                strcpy(labelstr, "R"); // workaround for Chinese character
                 image label = get_label_v3(alphabet, labelstr, (im.h*.02));
                 //draw_label(im, top + width, left, label, rgb);
                 draw_weighted_label(im, top + width, left, label, rgb, 0.7);
                 free_image(label);
             }
+            printf("flag2.9\n");
             if (selected_detections[i].det.mask) {
                 image mask = float_to_image(14, 14, 1, selected_detections[i].det.mask);
                 image resized_mask = resize_image(mask, b.w*im.w, b.h*im.h);
@@ -456,6 +461,7 @@ void draw_detections_v3(image im, detection *dets, int num, float thresh, char *
                 free_image(tmask);
             }
     }
+    printf("flag2.5\n");
     free(selected_detections);
 }
 
