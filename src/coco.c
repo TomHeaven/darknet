@@ -145,9 +145,9 @@ void validate_coco(char *cfgfile, char *weightfile)
     srand(time(0));
 
     char *base = "results/";
-    list *plist = get_paths("data/coco_val_5k.list");
+    //list *plist = get_paths("data/coco_val_5k.list");
     //list *plist = get_paths("/home/pjreddie/data/people-art/test.txt");
-    //list *plist = get_paths("/home/pjreddie/data/voc/test/2007_test.txt");
+    list *plist = get_paths("../data/voc/test/2007_test.txt");
     char **paths = (char **)list_to_array(plist);
 
     layer l = net.layers[net.n-1];
