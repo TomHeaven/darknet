@@ -444,7 +444,7 @@ void draw_detections_v3(image im, detection *dets, int num, float thresh, char *
                     }
                 }
                 printf("flag2.6: %s\n", labelstr);
-                strcpy(labelstr, "R"); // workaround for Chinese character
+                //strcpy(labelstr, "R"); // workaround for Chinese character
                 image label = get_label_v3(alphabet, labelstr, (im.h*.02));
                 //draw_label(im, top + width, left, label, rgb);
                 draw_weighted_label(im, top + width, left, label, rgb, 0.7);

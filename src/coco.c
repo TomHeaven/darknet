@@ -106,6 +106,7 @@ void train_coco(char *cfgfile, char *weightfile)
 void print_cocos(FILE *fp, int image_id, box *boxes, float **probs, int num_boxes, int classes, int w, int h)
 {
     int i, j;
+    //printf("num_boxes : %d\n", num_boxes);
     for(i = 0; i < num_boxes; ++i){
         float xmin = boxes[i].x - boxes[i].w/2.;
         float xmax = boxes[i].x + boxes[i].w/2.;
@@ -123,6 +124,7 @@ void print_cocos(FILE *fp, int image_id, box *boxes, float **probs, int num_boxe
         float bh = ymax - ymin;
 
         for(j = 0; j < classes; ++j){
+            //printf("{\"image_id\":%d, \"category_id\":%d, \"bbox\":[%f, %f, %f, %f], \"score\":%f},\n", image_id, coco_ids[j], bx, by, bw, bh, probs[i][j]);
             if (probs[i][j]) fprintf(fp, "{\"image_id\":%d, \"category_id\":%d, \"bbox\":[%f, %f, %f, %f], \"score\":%f},\n", image_id, coco_ids[j], bx, by, bw, bh, probs[i][j]);
         }
     }
@@ -132,6 +134,16 @@ int get_coco_image_id(char *filename)
 {
     char *p = strrchr(filename, '_');
     return atoi(p+1);
+}
+
+static int get_coco_image_id2(char *filename)
+{
+    //printf("filename = %s\n", filename);
+    char *p = strrchr(filename, '/');
+    //char *c = strrchr(filename, '_');
+    //if (c) p = c;
+    //printf("*p = %s\n", p);
+    return atoi(p + 1);
 }
 
 void validate_coco(char *cfgfile, char *weightfile)
@@ -144,12 +156,12 @@ void validate_coco(char *cfgfile, char *weightfile)
     fprintf(stderr, "Learning Rate: %g, Momentum: %g, Decay: %g\n", net.learning_rate, net.momentum, net.decay);
     srand(time(0));
 
-    char *base = "results/";
+    char *base = "../results/";
     //list *plist = get_paths("data/coco_val_5k.list");
     //list *plist = get_paths("/home/pjreddie/data/people-art/test.txt");
-    list *plist = get_paths("../data/voc/test/2007_test.txt");
+    list *plist = get_paths("../data/test.txt");
     char **paths = (char **)list_to_array(plist);
-
+    printf("net.n = %d\n", net.n);
     layer l = net.layers[net.n-1];
     int classes = l.classes;
     int side = l.side;
@@ -190,6 +202,7 @@ void validate_coco(char *cfgfile, char *weightfile)
         args.resized = &buf_resized[t];
         thr[t] = load_data_in_thread(args);
     }
+    printf("flag3: nthreads = %d\n", nthreads);
     time_t start = time(0);
     for(i = nthreads; i < m+nthreads; i += nthreads){
         fprintf(stderr, "%d\n", i);
@@ -198,19 +211,24 @@ void validate_coco(char *cfgfile, char *weightfile)
             val[t] = buf[t];
             val_resized[t] = buf_resized[t];
         }
+
         for(t = 0; t < nthreads && i+t < m; ++t){
             args.path = paths[i+t];
             args.im = &buf[t];
             args.resized = &buf_resized[t];
             thr[t] = load_data_in_thread(args);
         }
+
         for(t = 0; t < nthreads && i+t-nthreads < m; ++t){
             char *path = paths[i+t-nthreads];
-            int image_id = get_coco_image_id(path);
+            int image_id = get_coco_image_id2(path);
+            //printf("flag3.4: image_id = %d\n", image_id);
             float *X = val_resized[t].data;
             network_predict(net, X);
+           
             int w = val[t].w;
             int h = val[t].h;
+            //printf("val w = %d, h = %d\n", w, h); // 读图没问题
             get_detection_boxes(l, w, h, thresh, probs, boxes, 0);
             if (nms) do_nms_sort_v2(boxes, probs, side*side*l.n, classes, iou_thresh);
             print_cocos(fp, image_id, boxes, probs, side*side*l.n, classes, w, h);
@@ -218,6 +236,7 @@ void validate_coco(char *cfgfile, char *weightfile)
             free_image(val_resized[t]);
         }
     }
+    //printf("flag4\n");
 #ifdef WIN32
     fseek(fp, -3, SEEK_CUR);
 #else

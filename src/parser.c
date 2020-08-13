@@ -2040,6 +2040,11 @@ void load_weights_upto(network *net, char *filename, int cutoff)
     for(i = 0; i < net->n && i < cutoff; ++i){
         layer l = net->layers[i];
         if (l.dontload) continue;
+        // Tom: patch my tiny yolo
+        //if (i == 1) {
+        //    l = net->layers[0];
+        //    continue;
+       // }
         if(l.type == CONVOLUTIONAL && l.share_layer == NULL){
             load_convolutional_weights(l, fp);
         }

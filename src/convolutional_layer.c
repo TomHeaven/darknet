@@ -663,9 +663,9 @@ convolutional_layer make_convolutional_layer(int batch, int steps, int h, int w,
         else             fprintf(stderr, "%2d x%2d/%2d   ", size, size, stride_x);
     }
 
-    fprintf(stderr, "%4d x%4d x%4d -> %4d x%4d x%4d %5.3f BF\n", w, h, c, l.out_w, l.out_h, l.out_c, l.bflops);
+    fprintf(stderr, "%4d x%4d x%4d -> %4d x%4d x%4d %5.6f BF\n", w, h, c, l.out_w, l.out_h, l.out_c, l.bflops);
 
-    //fprintf(stderr, "%5d/%2d %2d x%2d /%2d(%d)%4d x%4d x%4d  -> %4d x%4d x%4d %5.3f BF\n", n, groups, size, size, stride, dilation, w, h, c, l.out_w, l.out_h, l.out_c, l.bflops);
+    //fprintf(stderr, "%5d/%2d %2d x%2d /%2d(%d)%4d x%4d x%4d  -> %4d x%4d x%4d %5.6f BF\n", n, groups, size, size, stride, dilation, w, h, c, l.out_w, l.out_h, l.out_c, l.bflops);
 
     if (l.antialiasing) {
         printf("AA:  ");
